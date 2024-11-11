@@ -32,8 +32,8 @@ jobs:
           name: Run SonarCloud Scan
           command: |
             sonar-scanner \
-              -Dsonar.projectKey=<YOUR_PROJECT_KEY> \
-              -Dsonar.organization=<YOUR_ORGANIZATION_KEY> \
+              -Dsonar.projectKey=Ibraheemhaffejee_APDS_POE \
+              -Dsonar.organization=ibraheemhaffejee \
               -Dsonar.login=$SONAR_TOKEN
 
 workflows:
