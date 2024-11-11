@@ -1,28 +1,28 @@
 version: 2.1
 
 jobs:
-  sonar-scanner:
+  sonar-scan:
     docker:
-      - image: circleci/openjdk:11-jdk
-
+      - image: cimg/base:current
     steps:
       - checkout
       - run:
           name: Install Sonar Scanner
           command: |
-            curl -sL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip -o sonar-scanner.zip
-            unzip sonar-scanner.zip -d $HOME
-            export PATH=$HOME/sonar-scanner-4.6.2.2472-linux/bin:$PATH
+            wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
+            unzip sonar-scanner-cli-4.6.2.2472-linux.zip
+            mv sonar-scanner-4.6.2.2472-linux /usr/local/sonar-scanner
+            echo 'export PATH=$PATH:/usr/local/sonar-scanner/bin' >> $BASH_ENV
+            source $BASH_ENV
       - run:
           name: Run SonarQube Scan
-          command: |
-            sonar-scanner \
-              -Dsonar.projectKey=YOUR_PROJECT_KEY \
-              -Dsonar.organization=YOUR_ORG_NAME \
-              -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.login=$SONAR_TOKEN
+          command: sonar-scanner
+        environment:
+          SONAR_HOST_URL: "your_sonar_server_url"  # Replace with your SonarQube server URL
+          SONAR_LOGIN: "your_sonar_token"          # Replace with your SonarQube token
 
 workflows:
+  version: 2
   sonar-scan-workflow:
     jobs:
-      - sonar-scanner
+      - sonar-scan
