@@ -6,10 +6,9 @@ jobs:
       - image: cimg/base:current
       - image: sonarqube:latest
         name: sonarqube
-        environment:
-          - SONAR_HOST_URL=http://sonarqube:9000
     environment:
-      SONAR_LOGIN: $SONAR_TOKEN
+      SONAR_HOST_URL: "http://sonarqube:9000"  
+      SONAR_LOGIN: $SONAR_TOKEN          
     steps:
       - checkout
       - run:
