@@ -5,8 +5,8 @@ jobs:
     docker:
       - image: cimg/base:current
     environment:
-      SONAR_HOST_URL: "your_sonar_server_url"  # Replace with your SonarQube server URL
-      SONAR_LOGIN: "your_sonar_token"          # Replace with your SonarQube token
+      SONAR_HOST_URL: "http://localhost:9000"  
+      SONAR_LOGIN: "sqa_1e9ec18dcfc161fccbd2a7b22eb84f76fb9226a4"          
     steps:
       - checkout
       - run:
