@@ -4,6 +4,9 @@ jobs:
   sonar-scan:
     docker:
       - image: cimg/base:current
+    environment:
+      SONAR_HOST_URL: "your_sonar_server_url"  # Replace with your SonarQube server URL
+      SONAR_LOGIN: "your_sonar_token"          # Replace with your SonarQube token
     steps:
       - checkout
       - run:
@@ -17,9 +20,6 @@ jobs:
       - run:
           name: Run SonarQube Scan
           command: sonar-scanner
-        environment:
-          SONAR_HOST_URL: "your_sonar_server_url"  # Replace with your SonarQube server URL
-          SONAR_LOGIN: "your_sonar_token"          # Replace with your SonarQube token
 
 workflows:
   version: 2
