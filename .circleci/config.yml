@@ -12,6 +12,10 @@ jobs:
     steps:
       - checkout
       - run:
+    name: Clear SonarQube Cache
+    command: rm -rf $HOME/.sonar/cache
+
+      - run:
           name: Wait for SonarQube to be ready
           command: |
             for i in $(seq 1 30); do
