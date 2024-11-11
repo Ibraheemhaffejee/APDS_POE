@@ -6,9 +6,9 @@ jobs:
       - image: cimg/base:current
       - image: sonarqube:latest
         name: sonarqube
-        command: ["-Dsonar.search.port=9000"]
+        environment:
+          - SONAR_HOST_URL=http://sonarqube:9000
     environment:
-      SONAR_HOST_URL: "http://sonarqube:9000"
       SONAR_LOGIN: $SONAR_TOKEN
     steps:
       - checkout
@@ -22,7 +22,7 @@ jobs:
             source $BASH_ENV
       - run:
           name: Run SonarQube Scan
-          command: sonar-scanner -X
+          command: sonar-scanner
 
 workflows:
   version: 2
