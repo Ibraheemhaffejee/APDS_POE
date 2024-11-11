@@ -1,31 +1,66 @@
 version: 2.1
 
-jobs:
-  sonar-scan:
+executors:
+  docker-executor:
     docker:
       - image: cimg/base:current
-      - image: sonarqube:latest
-        name: sonarqube
+    working_directory: ~/project
+
+jobs:
+  sonar-scan:
+    executor: docker-executor
     environment:
-      SONAR_HOST_URL: "http://sonarqube:9000"
+      # Use an environment variable for the SonarQube token
+      SONAR_HOST_URL: "http://localhost:9000"  
       SONAR_LOGIN: $SONAR_TOKEN
     steps:
+      - setup_remote_docker:
+          version: 20.10.7
+
       - checkout
-      - run:
-    name: Clear SonarQube Cache
-    command: rm -rf $HOME/.sonar/cache
 
       - run:
-          name: Wait for SonarQube to be ready
+          name: Start SonarQube Service
           command: |
-            for i in $(seq 1 30); do
-              if nc -z sonarqube 9000; then
-                echo "SonarQube is ready!"
-                break
-              fi
+            # Create a docker-compose.yml file for SonarQube and app
+            echo "
+            version: '3'
+            services:
+              sonarqube:
+                image: sonarqube:latest
+                ports:
+                  - '9000:9000'
+                environment:
+                  - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+                networks:
+                  - sonar-network
+
+              app:
+                image: cimg/base:current
+                depends_on:
+                  - sonarqube
+                networks:
+                  - sonar-network
+
+            networks:
+              sonar-network:
+                driver: bridge
+            " > docker-compose.yml
+
+      - run:
+          name: Start Docker Compose Services
+          command: docker-compose up -d
+
+      - run:
+          name: Wait for SonarQube Initialization
+          command: |
+            echo "Waiting for SonarQube to be fully initialized..."
+            until curl -s $SONAR_HOST_URL | grep -q "sonarqube"; do
               echo "Waiting for SonarQube..."
-              sleep 5
+              sleep 10
             done
+            echo "SonarQube is up and running."
+
       - run:
           name: Install Sonar Scanner
           command: |
@@ -34,9 +69,18 @@ jobs:
             mv sonar-scanner-4.6.2.2472-linux $HOME/sonar-scanner
             echo 'export PATH=$PATH:$HOME/sonar-scanner/bin' >> $BASH_ENV
             source $BASH_ENV
+
+      - run:
+          name: Clear SonarQube Cache
+          command: rm -rf $HOME/.sonar/cache
+
       - run:
           name: Run SonarQube Scan
           command: sonar-scanner
+
+      - run:
+          name: Tear down Docker Compose services
+          command: docker-compose down
 
 workflows:
   version: 2
