@@ -13,56 +13,56 @@ const validateAccountNumber = (accountNumber) => /^\d{10}$/.test(accountNumber);
 const validatePassword = (password) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{6,20}$/.test(password);
 
 // Register a new user (POST request)
-router.post(
-  '/register',
-  [
-    // Use express-validator to validate and sanitize user inputs
-    body('email').isEmail().withMessage('Invalid email format').normalizeEmail(),
-    body('accountNumber').isLength({ min: 10, max: 10 }).isNumeric().withMessage('Invalid account number format'),
-    body('password').isLength({ min: 6, max: 20 }).withMessage('Password must be 6-20 characters long'),
-    body('password').matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])/).withMessage('Password must include uppercase, lowercase, number, and special character')
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const { fullName, idNumber, accountNumber, email, password } = req.body;
-
-    try {
-      // Check if user already exists
-      let user = await User.findOne({ accountNumber });
-      if (user) {
-        return res.status(400).json({ msg: 'Account already exists' });
-      }
-
-      // Create new user
-      user = new User({ fullName, idNumber, accountNumber, email, password });
-
-      // Hash password before saving
-      user.password = await bcrypt.hash(password, 10);
-
-      await user.save();
-      res.status(201).json({ msg: 'User registered successfully' });
-    } catch (err) {
-      console.error('Error saving user:', err.message);
-      res.status(500).send('Server error');
-    }
+/* router.post( */
+/*   '/register', */
+/*   [ */
+/*     // Use express-validator to validate and sanitize user inputs */
+/*     body('email').isEmail().withMessage('Invalid email format').normalizeEmail(), */
+/*     body('accountNumber').isLength({ min: 10, max: 10 }).isNumeric().withMessage('Invalid account number format'), */
+/*     body('password').isLength({ min: 6, max: 20 }).withMessage('Password must be 6-20 characters long'), */
+/*     body('password').matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])/).withMessage('Password must include uppercase, lowercase, number, and  */special character')
+/*   ], */
+/*   async (req, res) => { */
+/*     const errors = validationResult(req); */
+/*     if (!errors.isEmpty()) { */
+/*       return res.status(400).json({ errors: errors.array() }); */
+/*     } */
+/*  */
+/*     const { fullName, idNumber, accountNumber, email, password } = req.body; */
+/*  */
+/*     try { */
+/*       // Check if user already exists */
+/*       let user = await User.findOne({ accountNumber }); */
+/*       if (user) { */
+/*         return res.status(400).json({ msg: 'Account already exists' }); */
+/*       } */
+/*  */
+/*       // Create new user */
+/*       user = new User({ fullName, idNumber, accountNumber, email, password }); */
+/*  */
+/*       // Hash password before saving */
+/*       user.password = await bcrypt.hash(password, 10); */
+/*  */
+/*       await user.save(); */
+/*       res.status(201).json({ msg: 'User registered successfully' }); */
+/*     } catch (err) { */
+/*       console.error('Error saving user:', err.message); */
+/*       res.status(500).send('Server error'); */
+/*     } 
   }
-);
+);*/
 
 // New GET route for retrieving registered users
-router.get('/register', async (req, res) => {
-  try {
-    const users = await User.find().select('-password'); // Exclude passwords
-    res.status(200).json({ msg: 'Fetched registered users', users });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-});
-
+/* router.get('/register', async (req, res) => { */
+/*   try { */
+/*     const users = await User.find().select('-password'); // Exclude passw */ords
+/*     res.status(200).json({ msg: 'Fetched registered users', users }); */
+/*   } catch (err) { */
+/*     console.error(err.message); */
+/*     res.status(500).send('Server error'); */
+/*   } */
+/* }); */
+/*  */
 // Login user (POST request)
 router.post(
   '/login',
