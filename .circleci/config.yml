@@ -10,55 +10,10 @@ jobs:
   sonar-scan:
     executor: docker-executor
     environment:
-      # Use an environment variable for the SonarQube token
-      SONAR_HOST_URL: "http://localhost:9000"  
-      SONAR_LOGIN: $SONAR_TOKEN
+      SONAR_HOST_URL: "https://sonarcloud.io"  # Use SonarCloud URL
+      SONAR_TOKEN: $SONAR_TOKEN  # This should be set as an environment variable in CircleCI
     steps:
-      - setup_remote_docker
-
       - checkout
-
-      - run:
-          name: Start SonarQube Service
-          command: |
-            # Create a docker-compose.yml file for SonarQube and app
-            echo "
-            version: '3'
-            services:
-              sonarqube:
-                image: sonarqube:latest
-                ports:
-                  - '9000:9000'
-                environment:
-                  - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
-                networks:
-                  - sonar-network
-
-              app:
-                image: cimg/base:current
-                depends_on:
-                  - sonarqube
-                networks:
-                  - sonar-network
-
-            networks:
-              sonar-network:
-                driver: bridge
-            " > docker-compose.yml
-
-      - run:
-          name: Start Docker Compose Services
-          command: docker-compose up -d
-
-      - run:
-          name: Wait for SonarQube Initialization
-          command: |
-            echo "Waiting for SonarQube to be fully initialized..."
-            until curl -s $SONAR_HOST_URL | grep -q "sonarqube"; do
-              echo "Waiting for SonarQube..."
-              sleep 10
-            done
-            echo "SonarQube is up and running."
 
       - run:
           name: Install Sonar Scanner
@@ -74,12 +29,12 @@ jobs:
           command: rm -rf $HOME/.sonar/cache
 
       - run:
-          name: Run SonarQube Scan
-          command: sonar-scanner
-
-      - run:
-          name: Tear down Docker Compose services
-          command: docker-compose down
+          name: Run SonarCloud Scan
+          command: |
+            sonar-scanner \
+              -Dsonar.projectKey=<YOUR_PROJECT_KEY> \
+              -Dsonar.organization=<YOUR_ORGANIZATION_KEY> \
+              -Dsonar.login=$SONAR_TOKEN
 
 workflows:
   version: 2
