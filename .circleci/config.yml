@@ -1,17 +1,9 @@
 version: 2.1
 
-executors:
-  docker-executor:
-    docker:
-      - image: cimg/base:current
-    working_directory: ~/project
-
 jobs:
   sonar-scan:
-    executor: docker-executor
-    environment:
-      SONAR_HOST_URL: "https://sonarcloud.io"  # Use SonarCloud URL
-      SONAR_TOKEN: $SONAR_TOKEN  # This should be set as an environment variable in CircleCI
+    docker:
+      - image: cimg/openjdk:17.0  # Using Java 17 for SonarCloud compatibility
     steps:
       - checkout
 
@@ -32,8 +24,9 @@ jobs:
           name: Run SonarCloud Scan
           command: |
             sonar-scanner \
-              -Dsonar.projectKey=Ibraheemhaffejee_APDS_POE \
-              -Dsonar.organization=ibraheemhaffejee \
+              -Dsonar.projectKey="Ibraheemhaffejee_APDS_POE" \
+              -Dsonar.organization="ibraheemhaffejee" \
+              -Dsonar.host.url="https://sonarcloud.io" \
               -Dsonar.login=$SONAR_TOKEN
 
 workflows:
